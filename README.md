@@ -95,6 +95,32 @@ Configuration de TLS (Transport Layer Security) :
 
 ## Automatisation des appels
 
+```
+[ivr_1]
+exten => s,1,Answer()
+exten => s,2,Set(TIMEOUT(response)=10)
+exten => s,3,agi(googletts.agi,"Bonjour et bienvenue chez à La Plateforme !",fr,any)
+exten => s,4,agi(googletts.agi,"Pour joindre Alice, taper 1.",fr,any)
+exten => s,5,agi(googletts.agi,"Pour joindre Bob, taper 2.",fr,any)
+exten => s,6,agi(googletts.agi,"Pour joindre Morgan, taper 3.",fr,any)
+exten => s,7,WaitExten()
+
+exten => 1,1,Dial(PJSIP/alice,10)
+exten => 2,1,Dial(PJSIP/bob,10)
+exten => 3,1,Dial(PJSIP/alice,10)
+
+exten => _[04-9*#],1,agi(googletts.agi,"Entrée invalide",fr,any)
+exten => _[04-9*#],2,Goto(ivr_1,s,1)
+exten => t,1,Goto(ivr_1,s,3)
+```
+```
+[appel-sortant]
+exten => s,1,Answer()
+ same => n,Wait(1)
+ same => n,AGI(googletts.agi,"Bonjour, ceci est un appel automatique.",fr)
+ same => n,Hangup()
+```
+
 Pour qu’un automate appelle nos utilisateurs automatiquement :
 1. Créez un fichier csv nommé contacts.csv qui répertorie les utilisateurs.
 2. Créez un script random.sh contenant les appels automatiques.
