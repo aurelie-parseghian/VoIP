@@ -20,8 +20,9 @@ sudo apt install build-essential libxml2-dev libncurses5-dev \
 linux-headers-$(uname -r) libsqlite3-dev libssl-dev libedit-dev \
 uuid-dev libjansson-dev
 ```
-```
+
 Installation de Asterisk :
+```
 - sudo apt update && sudo apt upgrade
 - sudo apt install build-essential libxml2-dev libncurses5-dev linux-headers-$(uname -r) libsqlite3-dev libssl-dev libedit-dev uuid-dev libjansson-dev (Pour les dépendances)
 - mkdir /usr/src/asterisk
@@ -101,10 +102,51 @@ Pour qu’un automate appelle nos utilisateurs automatiquement :
 Exemple de random.sh :
 ```
 #!/bin/bash
-while read contact; do
- echo "Appel vers $contact" # Simulation d'appel
- sleep 2
-done < contacts.csv
+
+CSV_FILE="contacts.csv"
+CALLS_DIR="/var/spool/asterisk/outgoing/"
+CALLER_ID="9000"
+
+# Vérifier si le fichier CSV existe
+if [[ ! -f "$CSV_FILE" ]]; then
+    echo "Erreur : le fichier $CSV_FILE n'existe pas."
+    exit 1
+fi
+
+# Lire le fichier CSV et générer un appel pour chaque contact
+tail -n +2 "$CSV_FILE" | while IFS=, read -r NAME NUMBER; do
+    # Vérifier que les champs ne sont pas vides
+    if [[ -z "$NAME" || -z "$NUMBER" ]]; then
+               continue
+    fi
+
+    CALL_FILE="/tmp/call_$NUMBER.call"
+
+    echo "Génération de l'appel pour $NAME ($NUMBER)..."
+
+    cat <<EOF > "$CALL_FILE"
+Channel: PJSIP/$NUMBER
+CallerID: "Prospection Automatique" <$CALLER_ID>
+MaxRetries: 2
+RetryTime: 60
+WaitTime: 30
+Context: auto_calls
+Extension: s
+Priority: 1
+EOF
+
+    # Vérifier que le fichier a été créé
+    if [[ ! -f "$CALL_FILE" ]]; then
+        echo "Erreur : Impossible de créer le fichier d'appel pour $NAME ($NUMBER)."
+        continue
+    fi
+
+    # Déplacer le fichier avec les bonnes permissions
+    chmod 777 "$CALL_FILE"
+    mv "$CALL_FILE" "$CALLS_DIR/"
+
+    echo "Appel généré pour $NAME ($NUMBER)"
+done
 ```
 
 ## Avantages et Inconvénients
