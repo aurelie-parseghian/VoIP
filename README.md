@@ -1,4 +1,4 @@
-# VoIP
+  # VoIP
 
 ## Introduction
 La VoIP (Voice over Internet Protocol) permet la transmission de la voix via Internet ou tout réseau utilisant le protocole IP. Contrairement à la téléphonie traditionnelle (RTC), elle convertit les signaux vocaux en paquets de données. Elle est largement utilisée dans les communications personnelles, professionnelles et industrielles.
@@ -66,14 +66,16 @@ exten => 6099,1,VoiceMailMain()
 exten => 6001,2,VoiceMail(6001)
 exten => 6002,2,VoiceMail(6002)
 ```
-```
+
 Configuration de la boîte mail dans /etc/asterisk/voicemail.conf :
+```
 [6001]
  password=6001
  fullname=Utilisateur 6001
  email=6001@example.com
-
+```
 Dans /etc/asterisk/extensions.conf :
+```
 - exten=>6099,1,VoiceMailMain() ; 6099 Numéro de téléphone du répondeur
 - exten=>6001,2,VoiceMail(6001) ; Appel répondeur compte 6001
 - exten=>6002,2,VoiceMail(6002) ; Appel répondeur compte 6002
@@ -95,6 +97,7 @@ Configuration de TLS (Transport Layer Security) :
 Pour qu’un automate appelle nos utilisateurs automatiquement :
 1. Créez un fichier csv nommé contacts.csv qui répertorie les utilisateurs.
 2. Créez un script random.sh contenant les appels automatiques.
+   
 Exemple de random.sh :
 ```
 #!/bin/bash
